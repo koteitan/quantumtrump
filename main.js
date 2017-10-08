@@ -26,15 +26,18 @@ window.onresize = function(){
   }
   document.getElementById("canvas0").width = wx;
   document.getElementById("canvas0").height= wy;
+  wc = wx/(cards+3);
   isRequestedDraw = true;
 };
 //fields for game ---------------------------
 var P; // possibilities matrix P[b][f]="b can be f.", b=index of cards, f=faced up card
 var isShuffle; // isShuffle[b]="b is mark to be shuffled." b=cards
+var lastShuffle = -1; // isShuffle[b]="b is mark to be shuffled." b=cards
 var cards = 53; // number of cards
 //fields for graphic ------------------------
 var wx;
 var wy;
+var wc;
 var frameRate = 60; // [fps]
 var canvas = new Array(2);
 var ctx    = new Array(2);
@@ -130,7 +133,6 @@ var initDraw=function(){
   isRequestedDraw = true;
 };
 var procDraw=function(){
-  var wc = wx/(cards+3);
   //clear
   ctx[0].clearRect(0, 0, wx-1, wy-1);
   //draw header
@@ -151,6 +153,11 @@ var procDraw=function(){
       }
       ctx[0].fillRect((x+2)*wc, (y+2)*wc, wc, wc);
     }
+  }
+  //draw shuffled
+  ctx[0].fillStyle = 'rgb(256,0,0)'; //red
+  for(var y=0;y<cards;y++){
+    if(isShuffle[y]) ctx[0].fillRect(1*wc, (y+2)*wc, wc, wc);
   }
   //draw table
   ctx[0].strokeWeight='1';
@@ -182,32 +189,117 @@ var dummy=function(){
     ctx[0].strokeStyle = 'yellow'; //blue
     ctx[0].guideText("TEE",p[0],p[1]);
 }
+//game-------------------------
+var getAloneX=function(y){
+  var ax=-1;
+  for(var x=0;x<cards;x++){
+    if(P[y][x]){
+      //true is found
+      if(ax!=-1)return -1; //return -1 with 2nd true
+      ax=x; //memo
+    }
+  }
+  return ux;
+}
+var getAloneY=function(x){
+  var ay=-1;
+  for(var y=0;y<cards;y++){
+    if(P[y][x]){
+      //true is found
+      if(ay!=-1)return -1; //return -1 with 2nd true
+      ay=y; //memo
+    }
+  }
+  return uy;
+}
+
+var collapse=function(){
+  var recollapse=false;
+  do{
+    for(var y=0;y<cards;y++){
+      //check y has unique true
+      var ax = getAloneX(y);
+      if(ax!=-1){ // if only 1
+        //check ax has unique true
+        if(getAloneY(ax)==-1){
+          //has
+          recollapse = true;
+          for(var x=0;x<cards;x++){
+            P[y][x]=false;
+          }
+          P[y][ax]=true;
+        }
+      }
+    }
+    for(var x=0;x<cards;x++){
+      //check y has unique true
+      var ay = getAloneY(x);
+      if(ay!=-1){ // if only 1
+        //check ax has unique true
+        if(getAloneY(ax)==-1){
+          //has
+          recollapse = true;
+          for(var y=0;y<cards;y++){
+            P[y][x]=false;
+          }
+          P[ay][x]=true;
+        }
+      }
+    }
+  }while(recollapse);
+}
+var shuffle=function(){
+  // init or
+  var or=new Array(cards);
+  for(var x=0;x<cards;x++) or[x]=false;
+  // calc or  
+  for(var y=0;y<cards;y++){
+    if(isShuffle[y]){
+      for(var x=0;x<cards;x++) or[x] |= P[y][x];
+    }
+  }
+  // copy or into all shuffled
+  for(var y=0;y<cards;y++){
+    if(isShuffle[y]){
+      for(var x=0;x<cards;x++) P[y][x]=or[x];
+    }
+  }
+}
 //event handlers after queue ------------
 var handleMouseDown = function(){
-  mdposC = transPos([mouseDownPos[0], mouseDownPos[1] ,cam.screenDistance],gS,gP);
-  mmposC = mdposC.clone();
-  mdcam         = cam.clone();
-  mdshotAngle3d = shotAngle3d.clone();
-  isRequestedDraw = true;
+  // convert mx,my
+  var mx=Math.floor(mouseDownPos[0]/wc)-2;
+  var my=Math.floor(mouseDownPos[1]/wc)-2;
+  handleDownAndDrag(mx,my);
 }
 var handleMouseDragging = function(){
-  mmposC = transPos([mousePos[0],mousePos[1],cam.screenDistance],gS,gP);
-  var invcamr = getRotate(cam0.dirmz, cam0.dirx, cam.dirmz, cam.dirx);
-  var mdposP = mul(invcamr, mdposC);
-  var mmposP = mul(invcamr, mmposC);
-  if(isShiftKey){
-    //shiftキー押しているなら
-	var invr = getRotate(mmposP, mdposP);
-    shotAngle3d = mul(invr, mdshotAngle3d);
-  }else{
-    //カメラ位置回転
-    var r = getRotate(mdposP, mmposP);
-    cam.pos   = mul(r, mdcam.pos);
-    cam.dirmz = mul(r, mdcam.dirmz);
-    cam.dirx  = mul(r, mdcam.dirx);
-  }
-  isRequestedDraw = true;
+  // convert mx,my
+  var mx=Math.floor(mousePos[0]/wc)-2;
+  var my=Math.floor(mousePos[1]/wc)-2;
+  handleDownAndDrag(mx,my);
 }
+
+var handleDownAndDrag = function(mx,my){
+  // check open
+  if(mx>=0 && mx<cards && my>=0 && my<cards){
+    if(P[my][mx]){
+      for(var y=0;y<cards;y++) P[ y][mx]=0;
+      for(var x=0;x<cards;x++) P[my][ x]=0;
+      P[my][mx]=1;
+      isRequestedDraw = true;
+    }
+  }
+  // check shuffle
+  if(mx==-1 && my>=0 && my<cards){
+    if(lastShuffle!=my){
+      lastShuffle=my;
+      isShuffle[my]=!isShuffle[my];
+      shuffle();
+      isRequestedDraw = true;
+    }
+  }
+}
+
 var handleMouseUp = function(){
 }
 var handleMouseMoving = function(){
