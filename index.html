@@ -6,10 +6,10 @@
 <script type="text/javascript" src="./exmath.js"></script>
 <script type="text/javascript" src="./excanvas.js"></script>
 <script type="text/javascript" src="./matrix.js"></script>
-<script type="text/javascript" src="./geom.js"></script>
 <script type="text/javascript" src="./event.js"></script>
-<script type="text/javascript" src="./4dgolf.js"></script>
+<script type="text/javascript" src="./main.js"></script>
 <style><!--
+  h1{text-align:center}
   body{font-family:Segoe UI; color:black; background-color:#008800}  
   a{color:black;border-style:none;text-decoration:underline}
   a:link{color:black;border-style:none;text-decoration:underline}
@@ -22,48 +22,22 @@
   canvas{padding:0px;margin:0px}
   .console{font-family:MS Gothic;color:white;background-color:black}
   --></style>
-<title>4 Dimensional Golf</title>
+<title>量子トランプ Quantum Trump (for JavaScript)</title>
 </head>
 <body>
-<h1 style="vertical-align:top">4 Dimensional Golf</h1>
-<table><tr><td>
+<h1 style="vertical-align:top">量子トランプ Quantum Trump</h1>
+<div align="center" >
 <canvas id="canvas0" width="512" height="512" style="background-color:black"></canvas>
-</td></tr></table>
-<div><form name=form1>
-<input type="button" onclick="javascript:form1.holeinput.value--;resetGame();" value="←"></input>
-Hole # <input name="holeinput" type=text id="holeinput" value="1" class="console"></input>
-<input type="button" onclick="javascript:form1.holeinput.value++;resetGame();" value="→"></input>
-</form></div>
+<div>
 <div id="debugout"> </div>
 <br>
 <hr>
-  <h2>遊び方:</h2>
-  <ul>
-    <li>人間 vs 人間のゲームです。</li>
-    <li>マウスホイールでズーム。</li>
-    <li>マウスドラッグで視点変更。</li>
-    <li>Shift + マウスドラッグでショット方向変更。</li>
-    <li>まだ打てません。</li>
-  </ul>
-  <h2>How to Play:</h2>
-  <ul>
-    <li>This game is for only human player vs human player.</li>
-    <li>mouse wheel            : change zoom</li>
-    <li>mouse drag             : change view</li>
-    <li>shift key + mouse drag : change shot angle</li>
-    <li>shot is not supported yet.</li>
-  </ul>
-  <h2>changelog:</h2>
-  <p id="changelog"></p>
-  <h2>Known Bugs:</h2>
-  <p id="knownbugs"></p>
-<hr>
   <address>
-  Infinite Dimensional Gomoku
+  Generalized Quantum Trump 
   version <span id="versiondisplay"></span><br>
   <script type="text/javascript" src="./version.js"></script>
   programed by <a href="http://twitter.com/#!/koteitan">koteitan</a><br>
-  source code is at <a href="https://github.com/koteitan/4dgolf/">github</a><br>
+  source code is at <a href="https://github.com/koteitan/quantumtrump/">github</a><br>
   </address>
 </body>
 </html>

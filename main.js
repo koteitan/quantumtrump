@@ -30,34 +30,14 @@ window.onresize = function(){
   isRequestedDraw = true;
 };
 //fields for game ---------------------------
-var debug= false;
-var turn = 0;
-var turnstr=["black","white"];
-var holeinput;//cource[c]
-var fairways=14;
-var fairway=new Array(fairways); //fairway[f][d]=location of fairway box in dimension d.
-var holerand;
+var P; // possibilities matrix P[b][f]="b can be f.", b=index of cards, f=faced up card
+var isShuffle; // isShuffle[b]="b is mark to be shuffled." b=cards
+var cards = 53; // number of cards
 //fields for graphic ------------------------
-var scale=2;
 var frameRate = 60; // [fps]
 var canvas = new Array(2);
 var ctx    = new Array(2);
 var isRequestedDraw;
-var cam; //camera object
-var gP;//physic coordinate
-var gS;//screen coordinate
-var wx, wy; // screen size
-var startpos; //startpos[d]
-var goalpos;  //goalpos[d]
-var nowpos;   //nowpos[d]
-var Rstartpos=0.05;
-var Rgoalpos =0.05;
-var Rnowpos  =0.1;
-var shotAngle3d;//shotAngle3d[d] = shot Angle in 3D (d=dimension)
-var shotAnglew; //shotAngle in dimension w
-var HeadSpeed = 50;//[m/s]
-var Gravity=9.8;
-var mpfairways=64;
 //field for event--------------------
 var isKeyTyping;
 var mdposC; // position at mousedown in CameraView coordinate
@@ -80,35 +60,14 @@ var initEvent = function(){
 };
 //initialize game----------------------------
 var initGame=function(){
-  //make hole
-  holeinput=parseInt(form1.holeinput.value);
-  holerand =new XorShift(holeinput);
-  fairway=new Array(fairways);
-  fairway[0]=[0,0,0];
-  for(var f=1;f<fairways;f++){
-    fairway[f]=new Array(3);
-    var dir=new Array(3);
-    do{
-      for(var d=0;d<3;d++){
-        dir[d]=Math.floor(holerand.getNext()*3-1);
-        fairway[f][d]=fairway[f-1][d]+dir[d];
-      }
-      //check unique
-      var same=false;
-      for(var f2=0;f2<f;f2++){
-        if(fairway[f].isEqual(fairway[f2])) same=true;
-      }
-    }while(same);
+  // reset to all 1
+  P = new Array(cards);
+  isShuffle = new Array(b);
+  for(var b=0;b<cards;b++){
+    isSuffle[b] = false;
+    P[b]=new Array(cards);
+    for(var f=0;f<cards;f++)P[b][f]=true;
   }
-  //make tee & goal
-  startpos=[0,0,0];
-  goalpos=new Array(3);
-  for(var d=0;d<3;d++) goalpos[d]=(holerand.getNext()-0.5)*0.9+fairway[fairway.length-1][d];
-  nowpos=startpos.clone();
-  var a = mulkv(sqrt1p2(), normalize(sub(goalpos,nowpos))); // 45 degree +w
-  shotAngle3d = [a[0],a[1],a[2]]; // 45 degree +w
-  shotAnglew  = sqrt1p2();
-  turn=0;
 };
 var resetGame=function(){
   initGame();
@@ -116,20 +75,6 @@ var resetGame=function(){
   procDraw();
   initEvent();
 }
-var wirecube=[
- [ [-0.5,-0.5,-0.5],[+0.5,-0.5,-0.5]],
- [ [-0.5,+0.5,-0.5],[+0.5,+0.5,-0.5]],
- [ [-0.5,-0.5,-0.5],[-0.5,+0.5,-0.5]],
- [ [+0.5,-0.5,-0.5],[+0.5,+0.5,-0.5]],
- [ [-0.5,-0.5,+0.5],[+0.5,-0.5,+0.5]],
- [ [-0.5,+0.5,+0.5],[+0.5,+0.5,+0.5]],
- [ [-0.5,-0.5,+0.5],[-0.5,+0.5,+0.5]],
- [ [+0.5,-0.5,+0.5],[+0.5,+0.5,+0.5]],
- [ [-0.5,-0.5,-0.5],[-0.5,-0.5,+0.5]],
- [ [-0.5,+0.5,-0.5],[-0.5,+0.5,+0.5]],
- [ [+0.5,-0.5,-0.5],[+0.5,-0.5,+0.5]],
- [ [+0.5,+0.5,-0.5],[+0.5,+0.5,+0.5]]
- ];
 var initDraw=function(){
   //renderer
   for(var i=0;i<1;i++){
@@ -186,20 +131,15 @@ var initDraw=function(){
     }
   }
   ctx[0].setBitmapFont("font.png", poslist, sizelist, letterlist);
-
-  //set coordinate
-  gP  = new Geom(3,[[-1,-1,-1],[+1,+1,+1]]);
-  gS  = new Geom(3,[[0,wy,0],[wx,0,wx] ]);
-  cam = new Camera();
-  cam0= new Camera();
-  cam.pos=mulkv(fairways*0.5,[-1,-1,-1]);
-  cam.dirmz =normalize(sub([0,0,0],cam.pos));
-  cam.dirx  =mul(getRotate(cam0.dirmz, cam0.dirx, cam.dirmz, cam.dirx),cam0.dirx);
-
 };
 var procDraw=function(){
-    //clear ---------
+  //clear
   ctx[0].clearRect(0, 0, wx-1, wy-1);
+  //draw table
+  ctx[0].strokeWeight='1';
+  ctx[0].lineWidth='1';
+}
+var dummy=function(){
   //draw cource ------
   ctx[0].strokeWeight='1';
   ctx[0].lineWidth='1';
