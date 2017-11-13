@@ -9,11 +9,6 @@ var procAll=function(){ //main loop
   if(isRequestedDraw){
     procDraw();
     isRequestedDraw = false;
-    for(var i=0;i<factorial(5);i++){
-      var a=hash2perm(i,5);
-      var h2=perm2hash(a);
-      printDebug(i+"¨"+a.toString()+"¨"+h2+"<br>");
-    }
   }
   procEvent();
 }
