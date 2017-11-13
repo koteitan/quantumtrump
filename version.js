@@ -8,4 +8,7 @@ document.getElementById("changelog").innerHTML =
 document.getElementById("knownbugs").innerHTML = 
 "<ul>"+
 "<li>iPhone, Androidではたぶん動きません。PCのブラウザでやってください</li>"+
+"</ul>"+
+"<ul>"+
+"<li>It does not work on iPhone, Android. Please play on browser in your PC.</li>"+
 "</ul>";

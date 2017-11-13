@@ -32,30 +32,49 @@
 <div id="debugout"> </div>
 <br>
 <hr>
-  <h2>これはなに？</h2>
+  <h2>これはなに？ What's this?</h2>
   <p>量子トランプです。<br>
   量子トランプとは表向けるときにあり得る可能性の中で好きな数字とスートを選べるトランプです。
   これはその量子トランプの基本動作である「開示(収縮,Open,Collapse)」と「シャッフル(entangle)」の２つをJavaScriptで実装したものです。
+  <p>It is a 'quantum trumps'.<br>
+  The quantum trumps is the trump with which you can select a suit you like when you face up the cards.
+  This program is the implementation of two standard behaviors for the quantum trump, 'collapsing' and 'shuffle' in JavaScript.
   </p>
-  <h2>遊び方:</h2>
+  <h2>遊び方 How to Play:</h2>
   <ul>
-    <li>6×6の表で6枚のトランプのカードの状態を表しています。</li>
+    <li>6×6の表で6枚のトランプのカードの状態を表しています。(本当は53枚でやりたかったのですが、処理量が足りずに6枚になりました)</li>
     <li>表の行はカードを表します。</li>
     <li>表の列はカードの内容、つまり、数字とスートを表しています。(書いてませんが。)</li>
     <li>白色のマスは、「そのカードがその数字とスートであり得る　」ことを意味しています。</li>
     <li>黒色のマスは、「そのカードがその数字とスートであり得ない」ことを意味しています。</li>
     <li>開示<ul>
-      <li>白色のマスをクリックすると、「そのカードを開示し、
+      <li>灰色のマスをクリックすると、「そのカードを開示し、
       そのカードがその数字とスートであることを選ぶ」という状態遷移が起こり、
       世界がそのカードがその数字とスートである世界へと収縮します。
       (つまり日本語で言うと、クリックしたマスと同じ行、同じ列のマスは全て黒色になります。)</li>
     </ul></li>
     <li>シャッフル<ul>
-      <li>左の灰色のマスをクリックすると、赤色になったり灰色になったりします。</li>
+      <li>左の青色のマスをクリックすると、赤色になったり青色になったりします。</li>
       <li>赤色はシャッフル候補のカードを表しています。
       赤色のカードたちは、シャッフルがなされ、
       全てのシャッフル候補のカードの状態が、
       それらの重ね合わせ状態になります。</li>
+    </ul></li>
+  </ul>
+  <ul>
+    <li>It indicates the statuses of the six trump cards with the 6×6 matrix.(I wish I made it 53×53, However, the calculation load was over and it works only six cards.)</li>
+    <li>The row of the matrix indicates the each cards.</li>
+    <li>The 'column of the matrix indicates the face of the card--means 'suit'. (though it is not written)</li>
+    <li>The white elements indicate the probabilities that 'this card is the suit'.</li>
+    <li>The black elements indicate the impossibilities of that.</li>
+    <li>'Collapse'<ul>
+      <li>If the gray elements are clicked, the state transition is occured, and the world collapses into the world in which 'the card' (the row) you selected is 'the suit' (the column) you selected.
+      (In English, all elements in the row and the column become black.)</li>
+    </ul></li>
+    <li>'Shuffle'<ul>
+      <li>If the left blue elements are clicked, it become red or blue.</li>
+      <li>The red cards indicate the cards to be shuffled.
+      The all red cards are shuffled to be the their superposition.</li>
     </ul></li>
   </ul>
   <h2>changelog:</h2>
