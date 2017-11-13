@@ -33,9 +33,9 @@ window.onresize = function(){
 var P;  // possibilities matrix P[b][f]="b can be f.", b=index of cards, f=faced up card
 var eP; // P=eP[i]*E_i, E_i=ith permutation matrix
 var perms; // permutations 
-var isShuffle; // isShuffle[b]="b is mark to be shuffled." b=cards
-var lastShuffle = -1; // isShuffle[b]="b is mark to be shuffled." b=cards
-var cards = 4; // number of cards
+var isShuffled; // isShuffled[b]="b is mark to be shuffled." b=cards
+var lastShuffle = -1; // isShuffled[b]="b is mark to be shuffled." b=cards
+var cards = 6; // number of cards
 //fields for graphic ------------------------
 var wx;
 var wy;
@@ -65,9 +65,9 @@ var initGame=function(){
   eP = new Array(perms);
   for(var p=0;p<perms;p++) eP[p] = 1/perms;
   P = new Array(cards);
-  isShuffle = new Array(b);
+  isShuffled = new Array(b);
   for(var b=0;b<cards;b++){
-    isShuffle[b] = false;
+    isShuffled[b] = false;
     P[b]=new Array(cards);
     for(var f=0;f<cards;f++)P[b][f] = 1/cards;
   }
@@ -140,7 +140,7 @@ var procDraw=function(){
   //clear
   ctx[0].clearRect(0, 0, wx-1, wy-1);
   //draw header
-  ctx[0].fillStyle = 'rgb(0,0,128)'; //dark blue
+  ctx[0].fillStyle = 'rgb(0,0,255)'; //blue
   for(var x=-1;x<cards;x++){
     ctx[0].fillRect((x+2)*wc, 1*wc, wc, wc);
   }
@@ -158,7 +158,7 @@ var procDraw=function(){
   //draw shuffled
   ctx[0].fillStyle = 'rgb(256,0,0)'; //red
   for(var y=0;y<cards;y++){
-    if(isShuffle[y]) ctx[0].fillRect(1*wc, (y+2)*wc, wc, wc);
+    if(isShuffled[y]) ctx[0].fillRect(1*wc, (y+2)*wc, wc, wc);
   }
   //draw table
   ctx[0].strokeWeight='1';
@@ -213,7 +213,21 @@ var getAloneY=function(x){
   }
   return ay;
 }
-
+var eP2P=function(){
+  //clear P
+  for(var y=0;y<cards;y++){
+    for(var x=0;x<cards;x++){
+      P[y][x]=0;
+    }
+  }
+  //eP -> P
+  for(var p=0;p<perms;p++){
+    var a=hash2perm(p,cards);
+    for(var c=0;c<cards;c++){
+      P[c][a[c]]+=eP[p];
+    }
+  }
+}
 var collapse=function(cx,cy){
   //collapse
   var sum=0;
@@ -221,23 +235,41 @@ var collapse=function(cx,cy){
     if(hash2perm(p,cards)[cy]!=cx)eP[p]=0;
     sum+=eP[p];
   }
-  //clear P
-  for(var y=0;y<cards;y++){
-    for(var x=0;x<cards;x++){
-      P[y][x]=0;
-    }
-  }
-  for(var p=0;p<perms;p++){
-    //regularize(normalize probability)
-    eP[p]/=sum;
-    //eP -> P
-    var a=hash2perm(p,cards);
-    for(var c=0;c<cards;c++){
-      P[c][a[c]]+=eP[p];
-    }
-  }
+  //regularize(normalize probability)
+  for(var p=0;p<perms;p++) eP[p]/=sum;
+  //eP->P
+  eP2P();
 }
 var shuffle=function(){
+  //count shuffle
+  var shuffleds = 0;
+  for(var y=0;y<cards;y++){
+    if(isShuffled[y])shuffleds++;
+  }
+  if(shuffleds==0) return;
+  //clear eP2[y]
+  var eP2 = new Array(perms);
+  for(var p=0;p<perms;p++) eP2[p]=0;
+  
+  for(var p=0;p<perms;p++){
+    var a = hash2perm(p,cards);
+    for(var p2=0;p2<perms;p2++){
+      var a2 = hash2perm(p2,cards);
+      //find same
+      var isSameGroup=true;
+      for(var y=0;y<cards;y++){
+        if(!isShuffled[y] && a[y]!=a2[y]){
+          isSameGroup=false;
+          break;
+        }
+      }
+      if(isSameGroup){
+        eP2[p2]+=eP[p]/factorial(shuffleds);
+      }
+    }
+  }
+  eP=eP2;
+  eP2P();
 }
 //event handlers after queue ------------
 var handleMouseDown = function(){
@@ -265,7 +297,7 @@ var handleDownAndDrag = function(mx,my){
   if(mx==-1 && my>=0 && my<cards){
     if(lastShuffle!=my){
       lastShuffle=my;
-      isShuffle[my]=!isShuffle[my];
+      isShuffled[my]=!isShuffled[my];
       shuffle();
       isRequestedDraw = true;
     }
