@@ -279,6 +279,7 @@ var handleMouseDown = function(){
   if(mx>=0 && mx<cards && my>=0 && my<cards){
     if(P[my][mx]){
       collapse(mx,my);
+      for(var y=0;y<cards;y++)isShuffled[y]=0;
       isRequestedDraw = true;
     }
   }
@@ -286,6 +287,11 @@ var handleMouseDown = function(){
   if(mx==-1 && my>=0 && my<cards){
     isShuffled[my]=!isShuffled[my];
     shuffle();
+    isRequestedDraw = true;
+  }
+  // clear shuffle
+  if(mx==-1 && my==-1){
+    for(var y=0;y<cards;y++)isShuffled[y]=0;
     isRequestedDraw = true;
   }
 }
