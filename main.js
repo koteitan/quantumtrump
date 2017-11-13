@@ -33,7 +33,7 @@ window.onresize = function(){
 var P; // possibilities matrix P[b][f]="b can be f.", b=index of cards, f=faced up card
 var isShuffle; // isShuffle[b]="b is mark to be shuffled." b=cards
 var lastShuffle = -1; // isShuffle[b]="b is mark to be shuffled." b=cards
-var cards = 53; // number of cards
+var cards = 4; // number of cards
 //fields for graphic ------------------------
 var wx;
 var wy;
@@ -199,7 +199,7 @@ var getAloneX=function(y){
       ax=x; //memo
     }
   }
-  return ux;
+  return ax;
 }
 var getAloneY=function(x){
   var ay=-1;
@@ -210,60 +210,12 @@ var getAloneY=function(x){
       ay=y; //memo
     }
   }
-  return uy;
+  return ay;
 }
 
-var collapse=function(){
-  var recollapse=false;
-  do{
-    for(var y=0;y<cards;y++){
-      //check y has unique true
-      var ax = getAloneX(y);
-      if(ax!=-1){ // if only 1
-        //check ax has unique true
-        if(getAloneY(ax)==-1){
-          //has
-          recollapse = true;
-          for(var x=0;x<cards;x++){
-            P[y][x]=false;
-          }
-          P[y][ax]=true;
-        }
-      }
-    }
-    for(var x=0;x<cards;x++){
-      //check y has unique true
-      var ay = getAloneY(x);
-      if(ay!=-1){ // if only 1
-        //check ax has unique true
-        if(getAloneY(ax)==-1){
-          //has
-          recollapse = true;
-          for(var y=0;y<cards;y++){
-            P[y][x]=false;
-          }
-          P[ay][x]=true;
-        }
-      }
-    }
-  }while(recollapse);
+var collapse=function(cx,cy){
 }
 var shuffle=function(){
-  // init or
-  var or=new Array(cards);
-  for(var x=0;x<cards;x++) or[x]=false;
-  // calc or  
-  for(var y=0;y<cards;y++){
-    if(isShuffle[y]){
-      for(var x=0;x<cards;x++) or[x] |= P[y][x];
-    }
-  }
-  // copy or into all shuffled
-  for(var y=0;y<cards;y++){
-    if(isShuffle[y]){
-      for(var x=0;x<cards;x++) P[y][x]=or[x];
-    }
-  }
 }
 //event handlers after queue ------------
 var handleMouseDown = function(){
@@ -283,9 +235,7 @@ var handleDownAndDrag = function(mx,my){
   // check open
   if(mx>=0 && mx<cards && my>=0 && my<cards){
     if(P[my][mx]){
-      for(var y=0;y<cards;y++) P[ y][mx]=0;
-      for(var x=0;x<cards;x++) P[my][ x]=0;
-      P[my][mx]=1;
+      collapse(mx,my);
       isRequestedDraw = true;
     }
   }
