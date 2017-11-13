@@ -30,7 +30,9 @@ window.onresize = function(){
   isRequestedDraw = true;
 };
 //fields for game ---------------------------
-var P; // possibilities matrix P[b][f]="b can be f.", b=index of cards, f=faced up card
+var P;  // possibilities matrix P[b][f]="b can be f.", b=index of cards, f=faced up card
+var eP; // P=eP[i]*E_i, E_i=ith permutation matrix
+var perms; // permutations 
 var isShuffle; // isShuffle[b]="b is mark to be shuffled." b=cards
 var lastShuffle = -1; // isShuffle[b]="b is mark to be shuffled." b=cards
 var cards = 4; // number of cards
@@ -59,13 +61,15 @@ var initEvent = function(){
 };
 //initialize game----------------------------
 var initGame=function(){
-  // reset to all 1
+  perms = factorial(cards);
+  eP = new Array(perms);
+  for(var p=0;p<perms;p++) eP[p] = 1/perms;
   P = new Array(cards);
   isShuffle = new Array(b);
   for(var b=0;b<cards;b++){
     isShuffle[b] = false;
     P[b]=new Array(cards);
-    for(var f=0;f<cards;f++)P[b][f]=true;
+    for(var f=0;f<cards;f++)P[b][f] = 1/cards;
   }
 };
 var resetGame=function(){
@@ -136,7 +140,7 @@ var procDraw=function(){
   //clear
   ctx[0].clearRect(0, 0, wx-1, wy-1);
   //draw header
-  ctx[0].fillStyle = 'rgb(128,128,128)'; //gray
+  ctx[0].fillStyle = 'rgb(0,0,128)'; //dark blue
   for(var x=-1;x<cards;x++){
     ctx[0].fillRect((x+2)*wc, 1*wc, wc, wc);
   }
@@ -146,11 +150,8 @@ var procDraw=function(){
   //draw element
   for(var x=0;x<cards;x++){
     for(var y=0;y<cards;y++){
-      if(P[y][x]){
-        ctx[0].fillStyle = 'rgb(255,255,255)'; //white
-      }else{
-        ctx[0].fillStyle = 'rgb(0,0,0)'; //black
-      }
+      var c=Math.floor(P[y][x]*255);
+      ctx[0].fillStyle = 'rgb('+c+','+c+','+c+')';
       ctx[0].fillRect((x+2)*wc, (y+2)*wc, wc, wc);
     }
   }
@@ -214,6 +215,27 @@ var getAloneY=function(x){
 }
 
 var collapse=function(cx,cy){
+  //collapse
+  var sum=0;
+  for(var p=0;p<perms;p++){
+    if(hash2perm(p,cards)[cy]!=cx)eP[p]=0;
+    sum+=eP[p];
+  }
+  //clear P
+  for(var y=0;y<cards;y++){
+    for(var x=0;x<cards;x++){
+      P[y][x]=0;
+    }
+  }
+  for(var p=0;p<perms;p++){
+    //regularize(normalize probability)
+    eP[p]/=sum;
+    //eP -> P
+    var a=hash2perm(p,cards);
+    for(var c=0;c<cards;c++){
+      P[c][a[c]]+=eP[p];
+    }
+  }
 }
 var shuffle=function(){
 }
