@@ -34,7 +34,6 @@ var P;  // possibilities matrix P[b][f]="b can be f.", b=index of cards, f=faced
 var eP; // P=eP[i]*E_i, E_i=ith permutation matrix
 var perms; // permutations 
 var isShuffled; // isShuffled[b]="b is mark to be shuffled." b=cards
-var lastShuffle = -1; // isShuffled[b]="b is mark to be shuffled." b=cards
 var cards = 6; // number of cards
 //fields for graphic ------------------------
 var wx;
@@ -276,16 +275,6 @@ var handleMouseDown = function(){
   // convert mx,my
   var mx=Math.floor(mouseDownPos[0]/wc)-2;
   var my=Math.floor(mouseDownPos[1]/wc)-2;
-  handleDownAndDrag(mx,my);
-}
-var handleMouseDragging = function(){
-  // convert mx,my
-  var mx=Math.floor(mousePos[0]/wc)-2;
-  var my=Math.floor(mousePos[1]/wc)-2;
-  handleDownAndDrag(mx,my);
-}
-
-var handleDownAndDrag = function(mx,my){
   // check open
   if(mx>=0 && mx<cards && my>=0 && my<cards){
     if(P[my][mx]){
@@ -295,13 +284,15 @@ var handleDownAndDrag = function(mx,my){
   }
   // check shuffle
   if(mx==-1 && my>=0 && my<cards){
-    if(lastShuffle!=my){
-      lastShuffle=my;
-      isShuffled[my]=!isShuffled[my];
-      shuffle();
-      isRequestedDraw = true;
-    }
+    isShuffled[my]=!isShuffled[my];
+    shuffle();
+    isRequestedDraw = true;
   }
+}
+var handleMouseDragging = function(){
+  // convert mx,my
+  var mx=Math.floor(mousePos[0]/wc)-2;
+  var my=Math.floor(mousePos[1]/wc)-2;
 }
 
 var handleMouseUp = function(){
