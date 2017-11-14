@@ -307,8 +307,6 @@ var handleMouseMoving = function(){
 //
 }
 var handleMouseWheel = function(){
-  var dz = mouseWheel[1]*0.01;
-  cam.pos=add(cam.pos, mulkv(dz, cam.dirmz));
   isRequestedDraw = true;
 }
 var handleKeyDown = function(e){
