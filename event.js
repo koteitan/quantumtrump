@@ -56,6 +56,7 @@ var procEvent = function(){
         e.y = e.touches[0].clientY;
         mouseDownPos = removeClientOffset(e);
         mousePos     = mouseDownPos.clone();
+        handleMouseDown();
         isDragging = true;
       break;
       case "touchmove": // dragging ---------
